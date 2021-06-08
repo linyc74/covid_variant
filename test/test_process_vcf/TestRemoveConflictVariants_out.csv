@@ -1,0 +1,8 @@
+POS,REF,ALT,QUAL
+10,A,T,100
+20,aattt,aa,100
+30,ccggg,cc,100
+40,gaaa,g,100
+50,a,attt,100
+51,cc,ccggg,100
+60,a,attt,100

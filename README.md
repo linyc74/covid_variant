@@ -1,1 +1,1 @@
-# covid_variant
+# Covid Variant
