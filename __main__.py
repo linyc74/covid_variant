@@ -21,13 +21,16 @@ class EntryPoint:
         description = f'Covid Variant (v{__version__}) by Yu-Cheng Lin (yclin.python@gmail.com)'
 
         dependencies = '\n  '.join([
-            'python (>=3.6)',
-            'pandas (0.25.1)',
-            'ngslite (1.1.2)',
+            'python (>=3.8)',
+            'fastqc (0.11.9)',
+            'cutadapt (3.3)',
             'trim_galore (0.6.6)',
             'bowtie2 (2.4.1)',
-            'samtools (1.10)',
+            'samtools (1.9)',
             'bcftools (1.9)',
+            'pandas (1.2.4)',
+            'ngslite (1.2.1)',
+            'biopython (1.79)',
         ])
 
         epilog = f'dependency:\n  {dependencies}'

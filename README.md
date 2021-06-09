@@ -45,10 +45,5 @@ Download and install Anaconda on either Mac or Linux. For Windows users, Windows
 
 Once Anaconda is set up, install the following packages in the terminal:
 
-    pip install ngslite
-
-    conda install -c bioconda \
-        trim_galore \
-        bowtie2 \
-        samtools \
-        bcftools
+    pip install pandas biopython ngslite cutadapt
+    conda install --channel bioconda fastqc bowtie2 samtools bcftools
