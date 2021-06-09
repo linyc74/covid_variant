@@ -5,13 +5,12 @@ from .template import Processor, Settings
 
 class ReportResult(Processor):
 
-    SEP = ', '
+    SEP = ','
 
     mutation_df: pd.DataFrame
     covid_strain_df: pd.DataFrame
 
     spike_mutations: List[str]
-    matched_strains: List[pd.Series]
 
     def __init__(self, settings: Settings):
         super().__init__(settings=settings)
@@ -43,7 +42,7 @@ class ReportResult(Processor):
             self.covid_strain_df['Spike Protein Substitutions'].apply(self.match)
 
     def match(self, s: str) -> bool:
-        mutations = s.split(self.SEP)
+        mutations = s.replace(' ', '').split(self.SEP)
         return list_1_in_list_2(
                 list_1=mutations,
                 list_2=self.spike_mutations)

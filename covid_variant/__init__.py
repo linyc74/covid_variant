@@ -62,7 +62,7 @@ class Main:
     def set_reference_paths(self):
         ref_dir = f'{dirname(dirname(__file__))}/reference'
         self.gbk = f'{ref_dir}/NC_045512.2.gb'
-        self.covid_strain_csv = f'{ref_dir}/covid_strains.csv'
+        self.covid_strain_csv = f'{ref_dir}/strains.csv'
 
     def execute(self):
         CovidVariant(self.settings).main(
