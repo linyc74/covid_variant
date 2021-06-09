@@ -1,2 +1,2 @@
 Spike protein mutations: 69del, 70del, 143del, 144del, Y145D, N501Y, A570D, D614G, P681H, T716I, A942S, S982A, D1118H
-Match: B.1.1.7 [United Kingdom]
+Match: B.X.X.X [Mars], B.Y.Y.Y [Venus]

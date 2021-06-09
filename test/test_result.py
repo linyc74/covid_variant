@@ -14,7 +14,8 @@ class TestReportResult(TestCase):
     def test_main(self):
         ReportResult(self.settings).main(
             mutation_df=pd.read_csv(f'{self.indir}/mutations.csv'),
-            covid_strain_df=pd.read_csv(f'{self.indir}/strains.csv')
+            covid_strain_df=pd.read_csv(f'{self.indir}/strains.csv'),
+            tolerate_missing=2
         )
         self.assertFileEqual(
             f'{self.indir}/result.txt',

@@ -20,6 +20,7 @@ class Main:
     fq1: str
     fq2: str
     outdir: str
+    tolerate_missing: int
     threads: int
     debug: bool
 
@@ -32,12 +33,14 @@ class Main:
             fq1: str,
             fq2: str,
             outdir: str,
+            tolerate_missing: int,
             threads: int,
             debug: bool):
 
         self.fq1 = fq1
         self.fq2 = fq2
         self.outdir = outdir
+        self.tolerate_missing = tolerate_missing
         self.threads = threads
         self.debug = debug
 
@@ -69,7 +72,8 @@ class Main:
             gbk=self.gbk,
             fq1=self.fq1,
             fq2=self.fq2,
-            covid_strain_csv=self.covid_strain_csv)
+            covid_strain_csv=self.covid_strain_csv,
+            tolerate_missing=self.tolerate_missing)
 
     def clean_up(self):
         if not self.debug:
@@ -80,6 +84,7 @@ def main(
         fq1: str,
         fq2: str,
         outdir: str,
+        tolerate_missing: int,
         threads: int,
         debug: bool):
 
@@ -87,5 +92,6 @@ def main(
         fq1=fq1,
         fq2=fq2,
         outdir=outdir,
+        tolerate_missing=tolerate_missing,
         threads=threads,
         debug=debug)

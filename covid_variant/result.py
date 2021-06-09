@@ -9,6 +9,7 @@ class ReportResult(Processor):
 
     mutation_df: pd.DataFrame
     covid_strain_df: pd.DataFrame
+    tolerate_missing: int
 
     spike_mutations: List[str]
 
@@ -18,10 +19,12 @@ class ReportResult(Processor):
     def main(
             self,
             mutation_df: pd.DataFrame,
-            covid_strain_df: pd.DataFrame):
+            covid_strain_df: pd.DataFrame,
+            tolerate_missing: int):
 
         self.mutation_df = mutation_df
         self.covid_strain_df = covid_strain_df
+        self.tolerate_missing = tolerate_missing
 
         self.set_spike_mutations()
         self.print_spike_mutations()
@@ -45,7 +48,8 @@ class ReportResult(Processor):
         mutations = s.replace(' ', '').split(self.SEP)
         return list_1_in_list_2(
                 list_1=mutations,
-                list_2=self.spike_mutations)
+                list_2=self.spike_mutations,
+                tolerate_missing=self.tolerate_missing)
 
     def print_matched_strains(self):
         df = self.covid_strain_df
@@ -66,7 +70,13 @@ class ReportResult(Processor):
             writer.write(msg + '\n')
 
 
-def list_1_in_list_2(list_1: List[str], list_2: List[str]) -> bool:
+def list_1_in_list_2(
+        list_1: List[str],
+        list_2: List[str],
+        tolerate_missing: int) -> bool:
+
     set_1 = set(list_1)
     set_2 = set(list_2)
-    return len(set_1.intersection(set_2)) == len(set_1)
+    common = set_1.intersection(set_2)
+
+    return len(common) + tolerate_missing >= len(set_1)
