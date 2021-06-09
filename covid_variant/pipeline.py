@@ -1,5 +1,5 @@
 import os.path
-from typing import Tuple
+from typing import Tuple, Optional
 from ngslite import read_genbank, write_fasta
 from .template import Processor, Settings
 
@@ -11,7 +11,7 @@ class VariantCallingPipeline(Processor):
 
     gbk: str
     fq1: str
-    fq2: str
+    fq2: Optional[str]
 
     fna: str
     bam: str
@@ -20,7 +20,7 @@ class VariantCallingPipeline(Processor):
     def __init__(self, settings: Settings):
         super().__init__(settings=settings)
 
-    def main(self, gbk: str, fq1: str, fq2: str) -> str:
+    def main(self, gbk: str, fq1: str, fq2: Optional[str]) -> str:
 
         self.gbk = gbk
         self.fq1 = fq1
@@ -40,12 +40,20 @@ class VariantCallingPipeline(Processor):
         write_fasta(data=data, file=self.fna)
 
     def trimming(self):
-        self.fq1, self.fq2 = Trimming(self.settings).main(
-            fq1=self.fq1, fq2=self.fq2)
+        if self.fq2 is None:
+            self.fq1 = UnpairedTrimming(self.settings).main(
+                fq=self.fq1)
+        else:
+            self.fq1, self.fq2 = PairedTrimming(self.settings).main(
+                fq1=self.fq1, fq2=self.fq2)
 
     def mapping(self):
-        self.bam = Mapping(self.settings).main(
-            fna=self.fna, fq1=self.fq1, fq2=self.fq2)
+        if self.fq2 is None:
+            self.bam = UnpairedMapping(self.settings).main(
+                fna=self.fna, fq=self.fq1)
+        else:
+            self.bam = PairedMapping(self.settings).main(
+                fna=self.fna, fq1=self.fq1, fq2=self.fq2)
 
     def variant_calling(self):
         self.vcf = VariantCalling(self.settings).main(
@@ -56,6 +64,65 @@ class Trimming(Processor):
 
     QUALITY: int = 20
     LENGTH: int = 20
+    FQ_SUFFIXES = [
+        '.fq',
+        '.fq.gz',
+        '.fastq',
+        '.fastq.gz',
+    ]
+
+    def __init__(self, settings: Settings):
+        super().__init__(settings=settings)
+
+
+class UnpairedTrimming(Trimming):
+
+    fq: str
+
+    cmd: str
+    trimmed_fq: str
+
+    def __init__(self, settings: Settings):
+        super().__init__(settings=settings)
+
+    def main(self, fq: str) -> str:
+        self.fq = fq
+
+        self.set_trimmed_fq()
+        self.set_cmd()
+        self.call(self.cmd)
+
+        return self.trimmed_fq
+
+    def set_trimmed_fq(self):
+        fq = os.path.basename(self.fq)
+
+        for suffix in self.FQ_SUFFIXES:
+            if fq.endswith(suffix):
+                fq = fq[:-len(suffix)]
+
+        self.trimmed_fq = f'{self.workdir}/{fq}_trimmed.fq.gz'
+
+    def set_cmd(self):
+
+        self.cmd = f'''\
+trim_galore \\
+--quality {self.QUALITY} \\
+--phred33 \\
+--fastqc \\
+--illumina \\
+--gzip \\
+--length {self.LENGTH} \\
+--max_n 0 \\
+--trim-n \\
+--cores {self.threads} \\
+--output_dir {self.workdir} \\
+{self.fq} \\
+1>> {self.workdir}/{LOG_FILENAME} \\
+2>> {self.workdir}/{LOG_FILENAME}'''
+
+
+class PairedTrimming(Trimming):
 
     fq1: str
     fq2: str
@@ -82,12 +149,7 @@ class Trimming(Processor):
         fq1 = os.path.basename(self.fq1)
         fq2 = os.path.basename(self.fq2)
 
-        for suffix in [
-            '.fq',
-            '.fq.gz',
-            '.fastq',
-            '.fastq.gz',
-        ]:
+        for suffix in self.FQ_SUFFIXES:
             if fq1.endswith(suffix):
                 assert fq2.endswith(suffix)
                 fq1 = fq1[:-len(suffix)]
@@ -97,7 +159,6 @@ class Trimming(Processor):
         self.trimmed_fq2 = f'{self.workdir}/{fq2}_val_2.fq.gz'
 
     def set_cmd(self):
-
         self.cmd = f'''\
 trim_galore \\
 --paired \\
@@ -110,6 +171,7 @@ trim_galore \\
 --max_n 0 \\
 --trim-n \\
 --retain_unpaired \\
+--cores {self.threads} \\
 --output_dir {self.workdir} \\
 {self.fq1} \\
 {self.fq2} \\
@@ -122,9 +184,6 @@ class Mapping(Processor):
     LINE_BREAK = ' \\\n'
 
     fna: str
-    fq1: str
-    fq2: str
-
     bowtie2_index: str
     sam: str
     bam: str
@@ -133,19 +192,6 @@ class Mapping(Processor):
     def __init__(self, settings: Settings):
         super().__init__(settings=settings)
 
-    def main(self, fna: str, fq1: str, fq2: str) -> str:
-
-        self.fna = fna
-        self.fq1 = fq1
-        self.fq2 = fq2
-
-        self.indexing()
-        self.mapping()
-        self.sam_to_bam()
-        self.sort_bam()
-
-        return self.sorted_bam
-
     def indexing(self):
         self.bowtie2_index = f'{self.workdir}/{os.path.basename(self.fna)}'
         args = [
@@ -153,21 +199,6 @@ class Mapping(Processor):
             f'--threads {self.threads}',
             self.fna,
             self.bowtie2_index,
-            f'1>> {self.workdir}/{LOG_FILENAME}',
-            f'2>> {self.workdir}/{LOG_FILENAME}',
-        ]
-        cmd = self.LINE_BREAK.join(args)
-        self.call(cmd)
-
-    def mapping(self):
-        self.sam = f'{self.workdir}/aligned.sam'
-        args = [
-            'bowtie2',
-            f'--threads {self.threads}',
-            f'-x {self.bowtie2_index}',
-            f'-1 {self.fq1}',
-            f'-2 {self.fq2}',
-            f'-S {self.sam}',
             f'1>> {self.workdir}/{LOG_FILENAME}',
             f'2>> {self.workdir}/{LOG_FILENAME}',
         ]
@@ -190,6 +221,77 @@ class Mapping(Processor):
             'samtools sort',
             f'-o {self.sorted_bam}',
             self.bam
+        ]
+        cmd = self.LINE_BREAK.join(args)
+        self.call(cmd)
+
+
+class UnpairedMapping(Mapping):
+
+    fq: str
+
+    def __init__(self, settings: Settings):
+        super().__init__(settings=settings)
+
+    def main(self, fna: str, fq: str) -> str:
+
+        self.fna = fna
+        self.fq = fq
+
+        self.indexing()
+        self.mapping()
+        self.sam_to_bam()
+        self.sort_bam()
+
+        return self.sorted_bam
+
+    def mapping(self):
+        self.sam = f'{self.workdir}/aligned.sam'
+        args = [
+            'bowtie2',
+            f'--threads {self.threads}',
+            f'-x {self.bowtie2_index}',
+            f'-U {self.fq}',
+            f'-S {self.sam}',
+            f'1>> {self.workdir}/{LOG_FILENAME}',
+            f'2>> {self.workdir}/{LOG_FILENAME}',
+        ]
+        cmd = self.LINE_BREAK.join(args)
+        self.call(cmd)
+
+
+class PairedMapping(Mapping):
+
+    fq1: str
+    fq2: str
+
+    def __init__(self, settings: Settings):
+        super().__init__(settings=settings)
+
+    def main(self, fna: str, fq1: str, fq2: str) -> str:
+
+        self.fna = fna
+        self.fq1 = fq1
+        self.fq2 = fq2
+
+        self.indexing()
+        self.mapping()
+        self.sam_to_bam()
+        self.sort_bam()
+
+        return self.sorted_bam
+
+    def mapping(self):
+        self.sam = f'{self.workdir}/aligned.sam'
+        args = [
+            'bowtie2',
+            f'--threads {self.threads}',
+            f'-x {self.bowtie2_index}',
+            f'-1 {self.fq1}',
+            f'-2 {self.fq2}',
+            f'-S {self.sam}',
+            f'1>> {self.workdir}/{LOG_FILENAME}',
+            f'2>> {self.workdir}/{LOG_FILENAME}',
         ]
         cmd = self.LINE_BREAK.join(args)
         self.call(cmd)

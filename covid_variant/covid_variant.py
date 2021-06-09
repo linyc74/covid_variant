@@ -1,5 +1,5 @@
 import pandas as pd
-from typing import List
+from typing import List, Optional
 from .cds import CDS
 from .result import ReportResult
 from .process_vcf import ProcessVcf
@@ -13,7 +13,7 @@ class CovidVariant(Processor):
 
     gbk: str
     fq1: str
-    fq2: str
+    fq2: Optional[str]
     covid_variant_csv: str
     tolerate_missing: float
 
@@ -30,7 +30,7 @@ class CovidVariant(Processor):
             self,
             gbk: str,
             fq1: str,
-            fq2: str,
+            fq2: Optional[str],
             covid_variant_csv: str,
             tolerate_missing: float):
 

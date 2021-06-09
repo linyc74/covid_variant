@@ -2,7 +2,7 @@ import argparse
 import covid_variant
 
 
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 
 
 class EntryPoint:
@@ -46,13 +46,13 @@ class EntryPoint:
             '-1', '--fq1', type=str, required=True,
             help='path to read 1 fastq file')
 
-        group.add_argument(
-            '-2', '--fq2', type=str, required=True,
-            help='path to read 2 fastq file')
-
     def add_optional_arguments(self):
         group = self.parser.add_argument_group('optional arguments')
         default = '(default: %(default)s)'
+
+        group.add_argument(
+            '-2', '--fq2', type=str, required=False, default='None',
+            help='path to read 2 fastq file')
 
         group.add_argument(
             '-o', '--outdir', type=str, required=False, default='covid_variant_outdir',
