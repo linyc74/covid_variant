@@ -41,9 +41,12 @@ An example shown in `stdout`
 
 ### Dependency
 
-Download and install Anaconda on either Mac or Linux. For Windows users, Windows Subsystem for Linux works as well.
+Download and install Anaconda on either Mac or Linux. Windows Subsystem for Linux (WSL) works as well.
 
 Once Anaconda is set up, install the following packages in the terminal:
 
     pip install pandas biopython ngslite cutadapt
-    conda install --channel bioconda fastqc bowtie2 samtools bcftools
+    conda install -c bioconda fastqc bowtie2 samtools bcftools trim-galore
+
+For some users, installing `trim-galore` might cause some trouble.
+Please refer to [TrimGalore](https://github.com/FelixKrueger/TrimGalore) for more details.
