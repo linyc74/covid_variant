@@ -20,24 +20,27 @@ class Main:
     fq1: str
     fq2: str
     outdir: str
+    tolerate_missing: float
     threads: int
     debug: bool
 
     settings: Settings
     gbk: str
-    covid_strain_csv: str
+    covid_variant_csv: str
 
     def main(
             self,
             fq1: str,
             fq2: str,
             outdir: str,
+            tolerate_missing: float,
             threads: int,
             debug: bool):
 
         self.fq1 = fq1
         self.fq2 = fq2
         self.outdir = outdir
+        self.tolerate_missing = tolerate_missing
         self.threads = threads
         self.debug = debug
 
@@ -62,14 +65,15 @@ class Main:
     def set_reference_paths(self):
         ref_dir = f'{dirname(dirname(__file__))}/reference'
         self.gbk = f'{ref_dir}/NC_045512.2.gb'
-        self.covid_strain_csv = f'{ref_dir}/covid_strains.csv'
+        self.covid_variant_csv = f'{ref_dir}/variants.csv'
 
     def execute(self):
         CovidVariant(self.settings).main(
             gbk=self.gbk,
             fq1=self.fq1,
             fq2=self.fq2,
-            covid_strain_csv=self.covid_strain_csv)
+            covid_variant_csv=self.covid_variant_csv,
+            tolerate_missing=self.tolerate_missing)
 
     def clean_up(self):
         if not self.debug:
@@ -80,6 +84,7 @@ def main(
         fq1: str,
         fq2: str,
         outdir: str,
+        tolerate_missing: float,
         threads: int,
         debug: bool):
 
@@ -87,5 +92,6 @@ def main(
         fq1=fq1,
         fq2=fq2,
         outdir=outdir,
+        tolerate_missing=tolerate_missing,
         threads=threads,
         debug=debug)

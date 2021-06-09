@@ -2,7 +2,7 @@ import argparse
 import covid_variant
 
 
-__version__ = '1.0.1'
+__version__ = '1.0.2'
 
 
 class EntryPoint:
@@ -13,13 +13,7 @@ class EntryPoint:
         self.set_parser()
         self.add_required_arguments()
         self.add_optional_arguments()
-        args = self.parser.parse_args()
-        covid_variant.main(
-            fq1=args.fq1,
-            fq2=args.fq2,
-            outdir=args.outdir,
-            threads=args.threads,
-            debug=args.debug)
+        self.run()
 
     def set_parser(self):
         prog = 'python covid_variant'
@@ -65,6 +59,10 @@ class EntryPoint:
             help=f'path to the output directory {default}')
 
         group.add_argument(
+            '-m', '--tolerate-missing', type=float, required=False, default=0.1,
+            help=f'fraction of missing mutations to be tolerated when matching to known variants {default}')
+
+        group.add_argument(
             '-t', '--threads', type=int, required=False, default=4,
             help=f'number of CPU threads {default}')
 
@@ -74,6 +72,16 @@ class EntryPoint:
         group.add_argument(
             '-h', '--help', action='help',
             help='show this help message and exit')
+
+    def run(self):
+        args = self.parser.parse_args()
+        covid_variant.main(
+            fq1=args.fq1,
+            fq2=args.fq2,
+            outdir=args.outdir,
+            tolerate_missing=args.tolerate_missing,
+            threads=args.threads,
+            debug=args.debug)
 
 
 if __name__ == '__main__':

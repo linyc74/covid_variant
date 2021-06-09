@@ -15,5 +15,10 @@ class TestCovidVariant(TestCase):
             gbk=f'{self.indir}/NC_045512.2.gb',
             fq1=f'{self.indir}/54Ct21-NY-23572315_S54_L001_R1.fq.gz',
             fq2=f'{self.indir}/54Ct21-NY-23572315_S54_L001_R2.fq.gz',
-            covid_strain_csv=f'{self.indir}/covid_strains.csv'
+            covid_variant_csv=f'{self.indir}/variants.csv',
+            tolerate_missing=0.,
+        )
+        self.assertFileEqual(
+            f'{self.indir}/result.txt',
+            f'{self.outdir}/result.txt'
         )
