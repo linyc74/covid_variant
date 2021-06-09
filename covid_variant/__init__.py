@@ -20,7 +20,7 @@ class Main:
     fq1: str
     fq2: str
     outdir: str
-    tolerate_missing: int
+    tolerate_missing: float
     threads: int
     debug: bool
 
@@ -33,7 +33,7 @@ class Main:
             fq1: str,
             fq2: str,
             outdir: str,
-            tolerate_missing: int,
+            tolerate_missing: float,
             threads: int,
             debug: bool):
 
@@ -84,7 +84,7 @@ def main(
         fq1: str,
         fq2: str,
         outdir: str,
-        tolerate_missing: int,
+        tolerate_missing: float,
         threads: int,
         debug: bool):
 

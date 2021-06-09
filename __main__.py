@@ -59,8 +59,8 @@ class EntryPoint:
             help=f'path to the output directory {default}')
 
         group.add_argument(
-            '-m', '--tolerate-missing', type=int, required=False, default=2,
-            help=f'number of missing mutations tolerated when matching to known variants {default}')
+            '-m', '--tolerate-missing', type=float, required=False, default=0.1,
+            help=f'fraction of missing mutations to be tolerated when matching to known variants {default}')
 
         group.add_argument(
             '-t', '--threads', type=int, required=False, default=4,

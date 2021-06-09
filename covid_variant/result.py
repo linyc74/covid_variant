@@ -9,7 +9,7 @@ class ReportResult(Processor):
 
     mutation_df: pd.DataFrame
     covid_strain_df: pd.DataFrame
-    tolerate_missing: int
+    tolerate_missing: float
 
     spike_mutations: List[str]
 
@@ -20,7 +20,7 @@ class ReportResult(Processor):
             self,
             mutation_df: pd.DataFrame,
             covid_strain_df: pd.DataFrame,
-            tolerate_missing: int):
+            tolerate_missing: float):
 
         self.mutation_df = mutation_df
         self.covid_strain_df = covid_strain_df
@@ -49,7 +49,7 @@ class ReportResult(Processor):
         return list_1_in_list_2(
                 list_1=mutations,
                 list_2=self.spike_mutations,
-                tolerate_missing=self.tolerate_missing)
+                tolerated_list_1_missing_fraction=self.tolerate_missing)
 
     def print_matched_strains(self):
         df = self.covid_strain_df
@@ -73,10 +73,9 @@ class ReportResult(Processor):
 def list_1_in_list_2(
         list_1: List[str],
         list_2: List[str],
-        tolerate_missing: int) -> bool:
+        tolerated_list_1_missing_fraction: float) -> bool:
 
-    set_1 = set(list_1)
-    set_2 = set(list_2)
-    common = set_1.intersection(set_2)
+    common = set(list_1).intersection(set(list_2))
+    missing_fraction = abs(len(common) - len(list_1)) / len(list_1)
 
-    return len(common) + tolerate_missing >= len(set_1)
+    return missing_fraction <= tolerated_list_1_missing_fraction

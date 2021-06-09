@@ -15,7 +15,7 @@ class CovidVariant(Processor):
     fq1: str
     fq2: str
     covid_strain_csv: str
-    tolerate_missing: int
+    tolerate_missing: float
 
     vcf: str
     cds_edit_df: pd.DataFrame
@@ -32,7 +32,7 @@ class CovidVariant(Processor):
             fq1: str,
             fq2: str,
             covid_strain_csv: str,
-            tolerate_missing: int):
+            tolerate_missing: float):
 
         self.gbk = gbk
         self.fq1 = fq1
