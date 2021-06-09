@@ -2,7 +2,7 @@ import argparse
 import covid_variant
 
 
-__version__ = '1.0.4'
+__version__ = '1.0.5'
 
 
 class EntryPoint:

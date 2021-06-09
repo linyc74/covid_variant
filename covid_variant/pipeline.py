@@ -332,6 +332,7 @@ class VariantCalling(Processor):
             f'--threads {self.threads}',
             '--consensus-caller',
             '--variants-only',
+            '--ploidy 1',
             '--output-type v',  # uncompressed VCF
             f'-o {self.vcf}',
             f'2>> {self.workdir}/{LOG_FILENAME}'
