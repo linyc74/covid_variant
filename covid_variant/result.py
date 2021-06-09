@@ -8,7 +8,7 @@ class ReportResult(Processor):
     SEP = ','
 
     mutation_df: pd.DataFrame
-    covid_strain_df: pd.DataFrame
+    covid_variant_df: pd.DataFrame
     tolerate_missing: float
 
     spike_mutations: List[str]
@@ -19,17 +19,17 @@ class ReportResult(Processor):
     def main(
             self,
             mutation_df: pd.DataFrame,
-            covid_strain_df: pd.DataFrame,
+            covid_variant_df: pd.DataFrame,
             tolerate_missing: float):
 
         self.mutation_df = mutation_df
-        self.covid_strain_df = covid_strain_df
+        self.covid_variant_df = covid_variant_df
         self.tolerate_missing = tolerate_missing
 
         self.set_spike_mutations()
         self.print_spike_mutations()
         self.add_match_column()
-        self.print_matched_strains()
+        self.print_matched_variants()
 
     def set_spike_mutations(self):
         df = self.mutation_df
@@ -41,8 +41,8 @@ class ReportResult(Processor):
         self.print_write(f'Spike protein mutations: {s}')
 
     def add_match_column(self):
-        self.covid_strain_df['Matched'] = \
-            self.covid_strain_df['Spike Protein Substitutions'].apply(self.match)
+        self.covid_variant_df['Matched'] = \
+            self.covid_variant_df['Spike Protein Substitutions'].apply(self.match)
 
     def match(self, s: str) -> bool:
         mutations = s.replace(' ', '').split(self.SEP)
@@ -51,8 +51,8 @@ class ReportResult(Processor):
                 list_2=self.spike_mutations,
                 tolerated_list_1_missing_fraction=self.tolerate_missing)
 
-    def print_matched_strains(self):
-        df = self.covid_strain_df
+    def print_matched_variants(self):
+        df = self.covid_variant_df
         df = df.loc[df['Matched']]
 
         items = []

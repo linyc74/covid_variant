@@ -14,7 +14,7 @@ class CovidVariant(Processor):
     gbk: str
     fq1: str
     fq2: str
-    covid_strain_csv: str
+    covid_variant_csv: str
     tolerate_missing: float
 
     vcf: str
@@ -31,13 +31,13 @@ class CovidVariant(Processor):
             gbk: str,
             fq1: str,
             fq2: str,
-            covid_strain_csv: str,
+            covid_variant_csv: str,
             tolerate_missing: float):
 
         self.gbk = gbk
         self.fq1 = fq1
         self.fq2 = fq2
-        self.covid_strain_csv = covid_strain_csv
+        self.covid_variant_csv = covid_variant_csv
         self.tolerate_missing = tolerate_missing
 
         self.variant_calling_pipeline()
@@ -72,5 +72,5 @@ class CovidVariant(Processor):
     def report_result(self):
         ReportResult(self.settings).main(
             mutation_df=self.mutation_df,
-            covid_strain_df=pd.read_csv(self.covid_strain_csv),
+            covid_variant_df=pd.read_csv(self.covid_variant_csv),
             tolerate_missing=self.tolerate_missing)
