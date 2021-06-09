@@ -79,7 +79,7 @@ class Exon:
     def insert(self, position: int, bases: str):
         assert self.start + 1 <= position <= self.end
         for b in set(bases):
-            assert b.lower() in ['a', 'c', 'g', 't']
+            assert b.lower() in ['a', 'c', 'g', 't'], f'b = "{b}"'
         self.insertions[position] = bases.lower()
 
 
