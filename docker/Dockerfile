@@ -1,6 +1,6 @@
 FROM continuumio/miniconda3:4.9.2
 
-RUN apt-get install -y \
+RUN apt-get update && apt-get install -y \
     libtbb2 \
  && conda install --channel bioconda \
     fastqc=0.11.9 \
@@ -14,8 +14,11 @@ RUN apt-get install -y \
     ngslite==1.2.1 \
     cutadapt==3.3
 
-COPY ./covid_variant /covid_variant
+RUN wget https://github.com/FelixKrueger/TrimGalore/archive/0.6.6.tar.gz -O trim_galore.tar.gz \
+ && tar xvzf trim_galore.tar.gz \
+ && mv TrimGalore-0.6.6/trim_galore /usr/bin/trim_galore \
+ && rm -r TrimGalore-0.6.6 trim_galore.tar.gz
 
-ENV PATH=$PATH:/covid_variant/bin/
+COPY ./covid_variant /covid_variant
 
 WORKDIR /
