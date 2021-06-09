@@ -49,7 +49,7 @@ class ReportResult(Processor):
         return list_1_in_list_2(
                 list_1=mutations,
                 list_2=self.spike_mutations,
-                tolerated_list_1_missing_fraction=self.tolerate_missing)
+                max_list_1_missing_fraction=self.tolerate_missing)
 
     def print_matched_variants(self):
         df = self.covid_variant_df
@@ -73,9 +73,9 @@ class ReportResult(Processor):
 def list_1_in_list_2(
         list_1: List[str],
         list_2: List[str],
-        tolerated_list_1_missing_fraction: float) -> bool:
+        max_list_1_missing_fraction: float) -> bool:
 
     common = set(list_1).intersection(set(list_2))
     missing_fraction = abs(len(common) - len(list_1)) / len(list_1)
 
-    return missing_fraction <= tolerated_list_1_missing_fraction
+    return missing_fraction <= max_list_1_missing_fraction
