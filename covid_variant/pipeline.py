@@ -319,6 +319,13 @@ class VariantCalling(Processor):
         return self.vcf
 
     def variant_calling(self):
+        """
+        For some reason, even though --ploidy was set to 1,
+        --consensus-caller (old method) still gave me diploid calling result, e.g. "A,C"
+
+        I set the calling method to --multiallelic-caller (new method), and the problem got resolved
+        """
+
         self.vcf = f'{self.outdir}/raw.vcf'
         args = [
             'bcftools mpileup',
@@ -330,7 +337,7 @@ class VariantCalling(Processor):
             '|',
             'bcftools call',
             f'--threads {self.threads}',
-            '--consensus-caller',
+            '--multiallelic-caller',
             '--variants-only',
             '--ploidy 1',
             '--output-type v',  # uncompressed VCF
