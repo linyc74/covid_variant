@@ -1,5 +1,6 @@
 from os import makedirs
 from shutil import rmtree
+from typing import Optional
 from os.path import exists, dirname
 from .template import Settings
 from .covid_variant import CovidVariant
@@ -18,7 +19,7 @@ def get_temp_path(prefix: str = 'temp', suffix: str = '') -> str:
 class Main:
 
     fq1: str
-    fq2: str
+    fq2: Optional[str]
     outdir: str
     tolerate_missing: float
     threads: int
@@ -38,7 +39,7 @@ class Main:
             debug: bool):
 
         self.fq1 = fq1
-        self.fq2 = fq2
+        self.fq2 = None if fq2 == 'None' else fq2
         self.outdir = outdir
         self.tolerate_missing = tolerate_missing
         self.threads = threads

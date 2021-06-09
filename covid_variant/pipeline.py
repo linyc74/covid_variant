@@ -20,7 +20,7 @@ class VariantCallingPipeline(Processor):
     def __init__(self, settings: Settings):
         super().__init__(settings=settings)
 
-    def main(self, gbk: str, fq1: str, fq2: Optional[str] = None) -> str:
+    def main(self, gbk: str, fq1: str, fq2: Optional[str]) -> str:
 
         self.gbk = gbk
         self.fq1 = fq1
