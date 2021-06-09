@@ -224,7 +224,7 @@ class VariantCalling(Processor):
             f'--output-type u',  # uncompressed BCF
             f'--fasta-ref {self.fna}',
             self.bam,
-            f'2>> {self.workdir}/{LOG_FILENAME}'
+            f'2>> {self.workdir}/{LOG_FILENAME}',
             '|',
             'bcftools call',
             f'--threads {self.threads}',
