@@ -50,3 +50,7 @@ Once Anaconda is set up, install the following packages in the terminal:
 
 For some users, installing `trim-galore` might cause some trouble.
 Please refer to [TrimGalore](https://github.com/FelixKrueger/TrimGalore) for more details.
+
+### Docker
+
+    docker pull linyc74/covid-variant
