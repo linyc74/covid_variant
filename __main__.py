@@ -2,7 +2,7 @@ import argparse
 import covid_variant
 
 
-__version__ = '1.0.7'
+__version__ = '1.0.8-beta'
 
 
 class EntryPoint:
@@ -18,7 +18,7 @@ class EntryPoint:
     def set_parser(self):
         prog = 'python covid_variant'
 
-        description = f'Covid Variant (v{__version__}) by Yu-Cheng Lin (yclin.python@gmail.com)'
+        description = f'Covid Variant (version {__version__}) by Yu-Cheng Lin (yclin.python@gmail.com)'
 
         dependencies = '\n  '.join([
             'python (>=3.8)',
@@ -74,7 +74,11 @@ class EntryPoint:
 
         group.add_argument(
             '-h', '--help', action='help',
-            help='show this help message and exit')
+            help='show this help message')
+
+        group.add_argument(
+            '-v', '--version', action='version', version=__version__,
+            help='show version')
 
     def run(self):
         args = self.parser.parse_args()
