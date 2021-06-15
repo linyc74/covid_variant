@@ -20,5 +20,5 @@ RUN wget https://github.com/FelixKrueger/TrimGalore/archive/0.6.6.tar.gz -O trim
  && rm -r TrimGalore-0.6.6 trim_galore.tar.gz
 
 COPY ./covid_variant /covid_variant
-
 WORKDIR /
+ENTRYPOINT ["python", "covid_variant"]
