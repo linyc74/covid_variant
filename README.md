@@ -2,7 +2,7 @@
 
 **Detect COVID-19 variant using Illumina sequencing**
 
-### Usage
+## Usage
 
     git clone https://github.com/linyc74/covid_variant.git
 
@@ -14,7 +14,7 @@ Unpaired
 
     python covid_variant -1 read.fq.gz
 
-### Reference Sequence and Variants
+## Reference Sequence and Variants
 
 - WT COVID-19 genome: [`NC_045512.2.gb`](https://www.ncbi.nlm.nih.gov/nuccore/1798174254)
 - [SARS-CoV-2 Variant Classifications and Definitions](https://www.cdc.gov/coronavirus/2019-ncov/variants/variant-info.html)
@@ -32,14 +32,14 @@ Unpaired
 |P.1      |L18F, T20N, P26S, D138Y, R190S, K417T, E484K, N501Y, D614G, H655Y, T1027I|Japan/Brazil              |
 |P.2      |E484K, D614G, V1176F                                                     |Brazil – April 2020       |
 
-### Output
+## Output
 
 An example shown in `stdout`
 
     Spike protein mutations: 69del, 70del, 143del, 144del, Y145D, N501Y, A570D, D614G, P681H, T716I, A942S, S982A, D1118H
     Match: B.1.1.7 [United Kingdom]
 
-### Dependency
+## Dependency
 
 Download and install Anaconda on either Mac or Linux. Windows Subsystem for Linux (WSL) works as well.
 
@@ -51,26 +51,9 @@ Once Anaconda is set up, install the following packages in the terminal:
 For some users, installing `trim-galore` might cause some trouble.
 Please refer to [TrimGalore](https://github.com/FelixKrueger/TrimGalore) for more details.
 
-### Docker
-
-The following section is the detailed instruction for running docker container.
-
-Pull the latest docker image from Docker Hub
+## Docker
 
     docker pull linyc74/covid-variant
-
-Check if the container works by printing the help message
-
-    docker run linyc74/covid-variant --help
-
-To run docker, the folder containing fastq files must be mounted on the docker container.
-For example, if the fastq files are located in the `data` folder:
-
-    data/read1.fq.gz
-    data/read2.fq.gz
-
-Then, the `data` folder must be mounted as `--volume $(pwd)/data:/data`, where `$(pwd)` provides the absolute path.
-The docker command would be:
 
     docker run \
     --volume $(pwd)/data:/data \
@@ -78,12 +61,4 @@ The docker command would be:
     -1 /data/read1.fq.gz \
     -2 /data/read2.fq.gz
 
-If the output directory is also needed, simply add new volumes
-
-    docker run \
-    --volume $(pwd)/data:/data \
-    --volume $(pwd)/outdir:/outdir \
-    linyc74/covid-variant \ 
-    -1 /data/read1.fq.gz \
-    -2 /data/read2.fq.gz \
-    -o /outdir
+More details of docker container, please refer to [docker.md](doc/docker.md)
