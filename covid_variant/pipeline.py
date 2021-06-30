@@ -217,12 +217,17 @@ class Sampling(Processor):
         super().__init__(settings=settings)
         random.seed(self.RANDOM_SEED)
 
+    def set_fraction(self):
+        self.set_total_read_bases()
+        self.set_genome_size()
+        sample_coverage = self.total_read_bases / self.genome_size
+        self.fraction = self.target_coverage / sample_coverage
+
     def set_genome_size(self):
         self.genome_size = len(read_genbank(self.gbk)[0].sequence)
 
-    def set_fraction(self):
-        sample_coverage = self.total_read_bases / self.genome_size
-        self.fraction = self.target_coverage / sample_coverage
+    def set_total_read_bases(self):
+        pass
 
 
 class SamplingUnpaired(Sampling):
@@ -246,8 +251,6 @@ class SamplingUnpaired(Sampling):
         self.fq = fq
         self.target_coverage = target_coverage
 
-        self.set_genome_size()
-        self.set_total_read_bases()
         self.set_fraction()
         if self.fraction >= 1.:
             return self.fq
@@ -321,8 +324,6 @@ class SamplingPaired(Sampling):
         self.fq2 = fq2
         self.target_coverage = target_coverage
 
-        self.set_genome_size()
-        self.set_total_read_bases()
         self.set_fraction()
         if self.fraction >= 1.:
             return self.fq1, self.fq2
