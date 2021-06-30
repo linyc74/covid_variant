@@ -18,12 +18,7 @@ class TestVariantCallingPipeline(TestCase):
             target_coverage=50.,
         )
         expected = f'{self.indir}/paired_raw.vcf'
-        with open(expected) as fh1:
-            with open(actual) as fh2:
-                for line1, line2 in zip(fh1, fh2):
-                    if line1.startswith('##bcftools_callCommand'):  # Skip the time stamp in this line
-                        continue
-                    self.assertEqual(line1, line2)
+        self.assertVcfEqual(expected, actual)
 
     def test_unpaired(self):
         actual = VariantCallingPipeline(self.settings).main(
@@ -33,6 +28,9 @@ class TestVariantCallingPipeline(TestCase):
             target_coverage=25.,
         )
         expected = f'{self.indir}/unpaired_raw.vcf'
+        self.assertVcfEqual(expected, actual)
+
+    def assertVcfEqual(self, expected: str, actual: str):
         with open(expected) as fh1:
             with open(actual) as fh2:
                 for line1, line2 in zip(fh1, fh2):
