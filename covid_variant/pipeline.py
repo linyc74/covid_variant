@@ -51,20 +51,20 @@ class VariantCallingPipeline(Processor):
 
     def trimming(self):
         if self.fq2 is None:
-            self.fq1 = UnpairedTrimming(self.settings).main(
+            self.fq1 = TrimmingUnpaired(self.settings).main(
                 fq=self.fq1)
         else:
-            self.fq1, self.fq2 = PairedTrimming(self.settings).main(
+            self.fq1, self.fq2 = TrimmingPaired(self.settings).main(
                 fq1=self.fq1, fq2=self.fq2)
 
     def sampling(self):
         if self.fq2 is None:
-            self.fq1 = UnpairedSampling(self.settings).main(
+            self.fq1 = SamplingUnpaired(self.settings).main(
                 gbk=self.gbk,
                 fq=self.fq1,
                 target_coverage=self.target_coverage)
         else:
-            self.fq1, self.fq2 = PairedSampling(self.settings).main(
+            self.fq1, self.fq2 = SamplingPaired(self.settings).main(
                 gbk=self.gbk,
                 fq1=self.fq1,
                 fq2=self.fq2,
@@ -72,10 +72,10 @@ class VariantCallingPipeline(Processor):
 
     def mapping(self):
         if self.fq2 is None:
-            self.bam = UnpairedMapping(self.settings).main(
+            self.bam = MappingUnpaired(self.settings).main(
                 fna=self.fna, fq=self.fq1)
         else:
-            self.bam = PairedMapping(self.settings).main(
+            self.bam = MappingPaired(self.settings).main(
                 fna=self.fna, fq1=self.fq1, fq2=self.fq2)
 
     def variant_calling(self):
@@ -98,7 +98,7 @@ class Trimming(Processor):
         super().__init__(settings=settings)
 
 
-class UnpairedTrimming(Trimming):
+class TrimmingUnpaired(Trimming):
 
     fq: str
 
@@ -145,7 +145,7 @@ trim_galore \\
 2>> {self.workdir}/{LOG_FILENAME}'''
 
 
-class PairedTrimming(Trimming):
+class TrimmingPaired(Trimming):
 
     fq1: str
     fq2: str
@@ -225,7 +225,7 @@ class Sampling(Processor):
         self.fraction = self.target_coverage / sample_coverage
 
 
-class UnpairedSampling(Sampling):
+class SamplingUnpaired(Sampling):
 
     fq: str
     sub_fq: str
@@ -251,19 +251,20 @@ class UnpairedSampling(Sampling):
         self.set_fraction()
         if self.fraction >= 1.:
             return self.fq
-        self.set_sub_fq1_fq2()
+        self.set_sub_fq()
         self.random_sampling()
 
         return self.sub_fq
 
     def set_total_read_bases(self):
-        self.total_read_bases = 0
+        t = 0
         with gzip.open(self.fq) as fh:
             for i, line in enumerate(fh):
                 if i % 4 == 1:
-                    self.total_read_bases += len(line.strip())
+                    t += len(line.strip())
+        self.total_read_bases = t
 
-    def set_sub_fq1_fq2(self):
+    def set_sub_fq(self):
         self.sub_fq = f'{self.workdir}/subsampled.fq.gz'
 
     def random_sampling(self):
@@ -293,7 +294,7 @@ class UnpairedSampling(Sampling):
             f.close()
 
 
-class PairedSampling(Sampling):
+class SamplingPaired(Sampling):
 
     fq1: str
     fq2: str
@@ -331,12 +332,13 @@ class PairedSampling(Sampling):
         return self.sub_fq1, self.sub_fq2
 
     def set_total_read_bases(self):
-        self.total_read_bases = 0
+        t = 0
         for fq in [self.fq1, self.fq2]:
             with gzip.open(fq) as fh:
                 for i, line in enumerate(fh):
                     if i % 4 == 1:
-                        self.total_read_bases += len(line.strip())
+                        t += len(line.strip())
+        self.total_read_bases = t
 
     def set_sub_fq1_fq2(self):
         self.sub_fq1 = f'{self.workdir}/subsampled.1.fq.gz'
@@ -420,7 +422,7 @@ class Mapping(Processor):
         self.call(cmd)
 
 
-class UnpairedMapping(Mapping):
+class MappingUnpaired(Mapping):
 
     fq: str
 
@@ -454,7 +456,7 @@ class UnpairedMapping(Mapping):
         self.call(cmd)
 
 
-class PairedMapping(Mapping):
+class MappingPaired(Mapping):
 
     fq1: str
     fq2: str
