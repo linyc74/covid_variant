@@ -21,7 +21,7 @@ DEPENDENCIES = [
 ]
 REQUIRED = [
     {
-        'keys': ['-1', '--fq'],
+        'keys': ['-1', '--fq1'],
         'properties': {
             'type': str,
             'required': True,
