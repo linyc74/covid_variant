@@ -1,3 +1,5 @@
+import gzip
+import random
 import os.path
 from typing import Tuple, Optional
 from ngslite import read_genbank, write_fasta
@@ -12,6 +14,7 @@ class VariantCallingPipeline(Processor):
     gbk: str
     fq1: str
     fq2: Optional[str]
+    target_coverage: float
 
     fna: str
     bam: str
@@ -20,14 +23,21 @@ class VariantCallingPipeline(Processor):
     def __init__(self, settings: Settings):
         super().__init__(settings=settings)
 
-    def main(self, gbk: str, fq1: str, fq2: Optional[str]) -> str:
+    def main(
+            self,
+            gbk: str,
+            fq1: str,
+            fq2: Optional[str],
+            target_coverage: float) -> str:
 
         self.gbk = gbk
         self.fq1 = fq1
         self.fq2 = fq2
+        self.target_coverage = target_coverage
 
         self.write_fna()
         self.trimming()
+        self.sampling()
         self.mapping()
         self.variant_calling()
 
@@ -46,6 +56,19 @@ class VariantCallingPipeline(Processor):
         else:
             self.fq1, self.fq2 = PairedTrimming(self.settings).main(
                 fq1=self.fq1, fq2=self.fq2)
+
+    def sampling(self):
+        if self.fq2 is None:
+            self.fq1 = UnpairedSampling(self.settings).main(
+                gbk=self.gbk,
+                fq=self.fq1,
+                target_coverage=self.target_coverage)
+        else:
+            self.fq1, self.fq2 = PairedSampling(self.settings).main(
+                gbk=self.gbk,
+                fq1=self.fq1,
+                fq2=self.fq2,
+                target_coverage=self.target_coverage)
 
     def mapping(self):
         if self.fq2 is None:
@@ -177,6 +200,177 @@ trim_galore \\
 {self.fq2} \\
 1>> {self.workdir}/{LOG_FILENAME} \\
 2>> {self.workdir}/{LOG_FILENAME}'''
+
+
+class Sampling(Processor):
+
+    RANDOM_SEED = 1
+
+    gbk: str
+    target_coverage: float
+
+    genome_size: int
+    total_read_bases: int
+    fraction: float
+
+    def __init__(self, settings: Settings):
+        super().__init__(settings=settings)
+        random.seed(self.RANDOM_SEED)
+
+    def set_genome_size(self):
+        self.genome_size = len(read_genbank(self.gbk)[0].sequence)
+
+    def set_fraction(self):
+        sample_coverage = self.total_read_bases / self.genome_size
+        self.fraction = self.target_coverage / sample_coverage
+
+
+class UnpairedSampling(Sampling):
+
+    fq: str
+    sub_fq: str
+
+    __fq: gzip.GzipFile
+    __sub_fq: gzip.GzipFile
+
+    def __init__(self, settings: Settings):
+        super().__init__(settings=settings)
+
+    def main(
+            self,
+            gbk: str,
+            fq: str,
+            target_coverage: float) -> str:
+
+        self.gbk = gbk
+        self.fq = fq
+        self.target_coverage = target_coverage
+
+        self.set_genome_size()
+        self.set_total_read_bases()
+        self.set_fraction()
+        if self.fraction >= 1.:
+            return self.fq
+        self.set_sub_fq1_fq2()
+        self.random_sampling()
+
+        return self.sub_fq
+
+    def set_total_read_bases(self):
+        self.total_read_bases = 0
+        with gzip.open(self.fq) as fh:
+            for i, line in enumerate(fh):
+                if i % 4 == 1:
+                    self.total_read_bases += len(line.strip())
+
+    def set_sub_fq1_fq2(self):
+        self.sub_fq = f'{self.workdir}/subsampled.fq.gz'
+
+    def random_sampling(self):
+        self.__open_files()
+
+        end = False
+        while True:
+            write = random.random() <= self.fraction
+            for i in range(4):
+                line = self.__fq.readline()
+                if write:
+                    self.__sub_fq.write(line)
+                if line == b'':
+                    end = True
+                    break
+            if end:
+                break
+
+        self.__close_files()
+
+    def __open_files(self):
+        self.__fq = gzip.open(self.fq)
+        self.__sub_fq = gzip.open(self.sub_fq, mode='wb')
+
+    def __close_files(self):
+        for f in [self.__fq, self.__sub_fq]:
+            f.close()
+
+
+class PairedSampling(Sampling):
+
+    fq1: str
+    fq2: str
+    sub_fq1: str
+    sub_fq2: str
+
+    __fq1: gzip.GzipFile
+    __fq2: gzip.GzipFile
+    __sub_fq1: gzip.GzipFile
+    __sub_fq2: gzip.GzipFile
+
+    def __init__(self, settings: Settings):
+        super().__init__(settings=settings)
+
+    def main(
+            self,
+            gbk: str,
+            fq1: str,
+            fq2: Optional[str],
+            target_coverage: float) -> Tuple[str, str]:
+
+        self.gbk = gbk
+        self.fq1 = fq1
+        self.fq2 = fq2
+        self.target_coverage = target_coverage
+
+        self.set_genome_size()
+        self.set_total_read_bases()
+        self.set_fraction()
+        if self.fraction >= 1.:
+            return self.fq1, self.fq2
+        self.set_sub_fq1_fq2()
+        self.random_sampling()
+
+        return self.sub_fq1, self.sub_fq2
+
+    def set_total_read_bases(self):
+        self.total_read_bases = 0
+        for fq in [self.fq1, self.fq2]:
+            with gzip.open(fq) as fh:
+                for i, line in enumerate(fh):
+                    if i % 4 == 1:
+                        self.total_read_bases += len(line.strip())
+
+    def set_sub_fq1_fq2(self):
+        self.sub_fq1 = f'{self.workdir}/subsampled.1.fq.gz'
+        self.sub_fq2 = f'{self.workdir}/subsampled.2.fq.gz'
+
+    def random_sampling(self):
+        self.__open_files()
+
+        end = False
+        while True:
+            write = random.random() <= self.fraction
+            for i in range(4):
+                line1 = self.__fq1.readline()
+                line2 = self.__fq2.readline()
+                if write:
+                    self.__sub_fq1.write(line1)
+                    self.__sub_fq2.write(line2)
+                if line1 == b'' or line2 == b'':
+                    end = True
+                    break
+            if end:
+                break
+
+        self.__close_files()
+
+    def __open_files(self):
+        self.__fq1 = gzip.open(self.fq1)
+        self.__fq2 = gzip.open(self.fq2)
+        self.__sub_fq1 = gzip.open(self.sub_fq1, mode='wb')
+        self.__sub_fq2 = gzip.open(self.sub_fq2, mode='wb')
+
+    def __close_files(self):
+        for f in [self.__fq1, self.__fq2, self.__sub_fq1, self.__sub_fq2]:
+            f.close()
 
 
 class Mapping(Processor):

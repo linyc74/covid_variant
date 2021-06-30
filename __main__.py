@@ -21,7 +21,7 @@ DEPENDENCIES = [
 ]
 REQUIRED = [
     {
-        'keys': ['-1', '--fq1'],
+        'keys': ['-1', '--fq'],
         'properties': {
             'type': str,
             'required': True,
@@ -49,12 +49,21 @@ OPTIONAL = [
         }
     },
     {
-        'keys': ['-m', '--tolerate-missing'],
+        'keys': ['--tolerate-missing'],
         'properties': {
             'type': float,
             'required': False,
             'default': 0.1,
             'help': 'fraction of missing mutations to be tolerated when matching to known variants (default: %(default)s)',
+        }
+    },
+    {
+        'keys': ['--target-coverage'],
+        'properties': {
+            'type': float,
+            'required': False,
+            'default': float('inf'),
+            'help': 'subsample fastq reads to the target coverage (default: %(default)s)',
         }
     },
     {
@@ -126,6 +135,7 @@ class EntryPoint:
             fq2=args.fq2,
             outdir=args.outdir,
             tolerate_missing=args.tolerate_missing,
+            target_coverage=args.target_coverage,
             threads=args.threads,
             debug=args.debug)
 

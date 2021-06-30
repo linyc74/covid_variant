@@ -14,7 +14,8 @@ class TestVariantCallingPipeline(TestCase):
         actual = VariantCallingPipeline(self.settings).main(
             gbk=f'{self.indir}/NC_045512.2.gb',
             fq1=f'{self.indir}/54Ct21-NY-23572315_S54_L001_R1.fq.gz',
-            fq2=f'{self.indir}/54Ct21-NY-23572315_S54_L001_R2.fq.gz'
+            fq2=f'{self.indir}/54Ct21-NY-23572315_S54_L001_R2.fq.gz',
+            target_coverage=50.,
         )
         expected = f'{self.indir}/paired_raw.vcf'
         with open(expected) as fh1:
@@ -28,7 +29,8 @@ class TestVariantCallingPipeline(TestCase):
         actual = VariantCallingPipeline(self.settings).main(
             gbk=f'{self.indir}/NC_045512.2.gb',
             fq1=f'{self.indir}/54Ct21-NY-23572315_S54_L001_R1.fq.gz',
-            fq2=None
+            fq2=None,
+            target_coverage=25.,
         )
         expected = f'{self.indir}/unpaired_raw.vcf'
         with open(expected) as fh1:

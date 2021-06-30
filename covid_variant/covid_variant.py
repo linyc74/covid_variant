@@ -16,6 +16,7 @@ class CovidVariant(Processor):
     fq2: Optional[str]
     covid_variant_csv: str
     tolerate_missing: float
+    target_coverage: float
 
     vcf: str
     cds_edit_df: pd.DataFrame
@@ -32,13 +33,15 @@ class CovidVariant(Processor):
             fq1: str,
             fq2: Optional[str],
             covid_variant_csv: str,
-            tolerate_missing: float):
+            tolerate_missing: float,
+            target_coverage: float):
 
         self.gbk = gbk
         self.fq1 = fq1
         self.fq2 = fq2
         self.covid_variant_csv = covid_variant_csv
         self.tolerate_missing = tolerate_missing
+        self.target_coverage = target_coverage
 
         self.variant_calling_pipeline()
         self.process_vcf()
@@ -49,7 +52,10 @@ class CovidVariant(Processor):
 
     def variant_calling_pipeline(self):
         self.vcf = VariantCallingPipeline(self.settings).main(
-            gbk=self.gbk, fq1=self.fq1, fq2=self.fq2)
+            gbk=self.gbk,
+            fq1=self.fq1,
+            fq2=self.fq2,
+            target_coverage=self.target_coverage)
 
     def process_vcf(self):
         self.cds_edit_df = ProcessVcf(self.settings).main(vcf=self.vcf)

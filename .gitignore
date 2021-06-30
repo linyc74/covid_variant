@@ -7,7 +7,7 @@ __pycache__/
 
 test/outdir/
 test/workdir/
-script.txt
+todo
 .coverage
 .coveralls.yml
 .pytest_cache/

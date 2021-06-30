@@ -17,6 +17,7 @@ class TestCovidVariant(TestCase):
             fq2=f'{self.indir}/54Ct21-NY-23572315_S54_L001_R2.fq.gz',
             covid_variant_csv=f'{self.indir}/variants.csv',
             tolerate_missing=0.,
+            target_coverage=float('inf'),
         )
         self.assertFileEqual(
             f'{self.indir}/result.txt',

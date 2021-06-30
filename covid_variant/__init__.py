@@ -22,6 +22,7 @@ class Main:
     fq2: Optional[str]
     outdir: str
     tolerate_missing: float
+    target_coverage: float
     threads: int
     debug: bool
 
@@ -35,6 +36,7 @@ class Main:
             fq2: str,
             outdir: str,
             tolerate_missing: float,
+            target_coverage: float,
             threads: int,
             debug: bool):
 
@@ -42,6 +44,7 @@ class Main:
         self.fq2 = None if fq2 == 'None' else fq2
         self.outdir = outdir
         self.tolerate_missing = tolerate_missing
+        self.target_coverage = target_coverage
         self.threads = threads
         self.debug = debug
 
@@ -74,7 +77,8 @@ class Main:
             fq1=self.fq1,
             fq2=self.fq2,
             covid_variant_csv=self.covid_variant_csv,
-            tolerate_missing=self.tolerate_missing)
+            tolerate_missing=self.tolerate_missing,
+            target_coverage=self.target_coverage)
 
     def clean_up(self):
         if not self.debug:
@@ -86,6 +90,7 @@ def main(
         fq2: str,
         outdir: str,
         tolerate_missing: float,
+        target_coverage: float,
         threads: int,
         debug: bool):
 
@@ -94,5 +99,6 @@ def main(
         fq2=fq2,
         outdir=outdir,
         tolerate_missing=tolerate_missing,
+        target_coverage=target_coverage,
         threads=threads,
         debug=debug)
