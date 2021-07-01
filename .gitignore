@@ -5,9 +5,10 @@ __pycache__/
 # PyCharm
 .idea/
 
-test/outdir/
-test/workdir/
-todo
+# Test
 .coverage
 .coveralls.yml
 .pytest_cache/
+test/outdir/
+test/workdir/
+todo

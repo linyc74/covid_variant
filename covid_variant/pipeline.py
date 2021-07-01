@@ -223,11 +223,12 @@ class Sampling(Processor):
         sample_coverage = self.total_read_bases / self.genome_size
         self.fraction = self.target_coverage / sample_coverage
 
+    def set_total_read_bases(self):
+        # Depending on paired or unpaired fq files
+        pass
+
     def set_genome_size(self):
         self.genome_size = len(read_genbank(self.gbk)[0].sequence)
-
-    def set_total_read_bases(self):
-        pass
 
 
 class SamplingUnpaired(Sampling):
@@ -275,10 +276,10 @@ class SamplingUnpaired(Sampling):
 
         end = False
         while True:
-            write = random.random() <= self.fraction
+            keep = random.random() <= self.fraction
             for i in range(4):
                 line = self.__fq.readline()
-                if write:
+                if keep:
                     self.__sub_fq.write(line)
                 if line == b'':
                     end = True
@@ -350,11 +351,11 @@ class SamplingPaired(Sampling):
 
         end = False
         while True:
-            write = random.random() <= self.fraction
+            keep = random.random() <= self.fraction
             for i in range(4):
                 line1 = self.__fq1.readline()
                 line2 = self.__fq2.readline()
-                if write:
+                if keep:
                     self.__sub_fq1.write(line1)
                     self.__sub_fq2.write(line2)
                 if line1 == b'' or line2 == b'':
