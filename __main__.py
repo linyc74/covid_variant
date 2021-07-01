@@ -2,7 +2,7 @@ import argparse
 import covid_variant
 
 
-__version__ = '1.1.0-beta'
+__version__ = '1.1.0'
 
 
 PROG = 'python covid_variant'
