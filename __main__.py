@@ -6,7 +6,7 @@ __version__ = '1.1.1-beta'
 
 
 PROG = 'python covid_variant'
-DESCRIPTION = f'Covid Variant (version {__version__}) by Yu-Cheng Lin (yclin.python@gmail.com)'
+DESCRIPTION = f'Covid Variant (version {__version__}) by Yu-Cheng Lin (linyc74@gmail.com)'
 REQUIRED = [
     {
         'keys': ['-1', '--fq1'],
