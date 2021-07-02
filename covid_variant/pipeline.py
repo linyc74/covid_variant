@@ -84,15 +84,15 @@ class VariantCallingPipeline(Processor):
 
 
 class Trimming(Processor):
+    """
+    Adapter sequences indicated in:
+    https://cutadapt.readthedocs.io/en/stable/guide.html#illumina-truseq
+    """
 
-    QUALITY: int = 20
-    LENGTH: int = 20
-    FQ_SUFFIXES = [
-        '.fq',
-        '.fq.gz',
-        '.fastq',
-        '.fastq.gz',
-    ]
+    READ1_ADAPTER = 'AGATCGGAAGAGCACACGTCTGAACTCCAGTCA'
+    READ2_ADAPTER = 'AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT'
+    ERROR_RATE = 0.1
+    QUALITY_CUTOFF = 20
 
     def __init__(self, settings: Settings):
         super().__init__(settings=settings)
@@ -109,6 +109,7 @@ class TrimmingUnpaired(Trimming):
         super().__init__(settings=settings)
 
     def main(self, fq: str) -> str:
+
         self.fq = fq
 
         self.set_trimmed_fq()
@@ -118,28 +119,18 @@ class TrimmingUnpaired(Trimming):
         return self.trimmed_fq
 
     def set_trimmed_fq(self):
-        fq = os.path.basename(self.fq)
-
-        for suffix in self.FQ_SUFFIXES:
-            if fq.endswith(suffix):
-                fq = fq[:-len(suffix)]
-
-        self.trimmed_fq = f'{self.workdir}/{fq}_trimmed.fq.gz'
+        self.trimmed_fq = f'{self.workdir}/trimmed.fq.gz'
 
     def set_cmd(self):
-
         self.cmd = f'''\
-trim_galore \\
---quality {self.QUALITY} \\
---phred33 \\
---fastqc \\
---illumina \\
---gzip \\
---length {self.LENGTH} \\
---max_n 0 \\
---trim-n \\
+cutadapt \\
 --cores {self.threads} \\
---output_dir {self.workdir} \\
+--error-rate {self.ERROR_RATE} \\
+--quality-cutoff {self.QUALITY_CUTOFF} \\
+--trim-n \\
+-Z \\
+-a {self.READ1_ADAPTER} \\
+-o {self.trimmed_fq} \\
 {self.fq} \\
 1>> {self.workdir}/{LOG_FILENAME} \\
 2>> {self.workdir}/{LOG_FILENAME}'''
@@ -169,33 +160,21 @@ class TrimmingPaired(Trimming):
         return self.trimmed_fq1, self.trimmed_fq2
 
     def set_trimmed_fq1_fq2(self):
-        fq1 = os.path.basename(self.fq1)
-        fq2 = os.path.basename(self.fq2)
-
-        for suffix in self.FQ_SUFFIXES:
-            if fq1.endswith(suffix):
-                assert fq2.endswith(suffix)
-                fq1 = fq1[:-len(suffix)]
-                fq2 = fq2[:-len(suffix)]
-
-        self.trimmed_fq1 = f'{self.workdir}/{fq1}_val_1.fq.gz'
-        self.trimmed_fq2 = f'{self.workdir}/{fq2}_val_2.fq.gz'
+        self.trimmed_fq1 = f'{self.workdir}/trimmed.1.fq.gz'
+        self.trimmed_fq2 = f'{self.workdir}/trimmed.2.fq.gz'
 
     def set_cmd(self):
         self.cmd = f'''\
-trim_galore \\
---paired \\
---quality {self.QUALITY} \\
---phred33 \\
---fastqc \\
---illumina \\
---gzip \\
---length {self.LENGTH} \\
---max_n 0 \\
---trim-n \\
---retain_unpaired \\
+cutadapt \\
 --cores {self.threads} \\
---output_dir {self.workdir} \\
+--error-rate {self.ERROR_RATE} \\
+--quality-cutoff {self.QUALITY_CUTOFF} \\
+--trim-n \\
+-Z \\
+-a {self.READ1_ADAPTER} \\
+-A {self.READ2_ADAPTER} \\
+-o {self.trimmed_fq1} \\
+-p {self.trimmed_fq2} \\
 {self.fq1} \\
 {self.fq2} \\
 1>> {self.workdir}/{LOG_FILENAME} \\
