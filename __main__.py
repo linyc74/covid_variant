@@ -7,16 +7,6 @@ __version__ = '1.1.1-beta'
 
 PROG = 'python covid_variant'
 DESCRIPTION = f'Covid Variant (version {__version__}) by Yu-Cheng Lin (yclin.python@gmail.com)'
-DEPENDENCIES = [
-    'python (>=3.8)',
-    'cutadapt (3.3)',
-    'bowtie2 (2.4.1)',
-    'samtools (1.9)',
-    'bcftools (1.9)',
-    'pandas (1.2.4)',
-    'ngslite (1.2.1)',
-    'biopython (1.79)',
-]
 REQUIRED = [
     {
         'keys': ['-1', '--fq1'],
@@ -112,7 +102,6 @@ class EntryPoint:
         self.parser = argparse.ArgumentParser(
             prog=PROG,
             description=DESCRIPTION,
-            epilog='\n  '.join(['dependency:'] + DEPENDENCIES),
             add_help=False,
             formatter_class=argparse.RawTextHelpFormatter)
 
