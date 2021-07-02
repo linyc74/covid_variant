@@ -9,7 +9,6 @@ PROG = 'python covid_variant'
 DESCRIPTION = f'Covid Variant (version {__version__}) by Yu-Cheng Lin (yclin.python@gmail.com)'
 DEPENDENCIES = [
     'python (>=3.8)',
-    'fastqc (0.11.9)',
     'cutadapt (3.3)',
     'bowtie2 (2.4.1)',
     'samtools (1.9)',
