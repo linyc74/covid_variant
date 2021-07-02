@@ -46,10 +46,7 @@ Download and install Anaconda on either Mac or Linux. Windows Subsystem for Linu
 Once Anaconda is set up, install the following packages in the terminal:
 
     pip install pandas biopython ngslite cutadapt
-    conda install -c bioconda fastqc bowtie2 samtools bcftools trim-galore
-
-For some users, installing `trim-galore` might cause some trouble.
-Please refer to [TrimGalore](https://github.com/FelixKrueger/TrimGalore) for more details.
+    conda install -c bioconda fastqc bowtie2 samtools bcftools
 
 ## Docker
 
