@@ -11,7 +11,6 @@ DEPENDENCIES = [
     'python (>=3.8)',
     'fastqc (0.11.9)',
     'cutadapt (3.3)',
-    'trim_galore (0.6.6)',
     'bowtie2 (2.4.1)',
     'samtools (1.9)',
     'bcftools (1.9)',

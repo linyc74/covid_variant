@@ -14,11 +14,6 @@ RUN apt-get install -y \
     ngslite==1.2.1 \
     cutadapt==3.3
 
-RUN wget https://github.com/FelixKrueger/TrimGalore/archive/0.6.6.tar.gz -O trim_galore.tar.gz \
- && tar xvzf trim_galore.tar.gz \
- && mv TrimGalore-0.6.6/trim_galore /usr/bin/trim_galore \
- && rm -r TrimGalore-0.6.6 trim_galore.tar.gz
-
 COPY ./covid_variant /covid_variant
 WORKDIR /
 ENTRYPOINT ["python", "covid_variant"]
