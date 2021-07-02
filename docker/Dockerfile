@@ -3,7 +3,6 @@ FROM continuumio/miniconda3:4.9.2
 RUN apt-get install -y \
     libtbb2 \
  && conda install --channel bioconda \
-    fastqc=0.11.9 \
     bowtie2=2.4.1 \
     samtools=1.9 \
     bcftools=1.9 \

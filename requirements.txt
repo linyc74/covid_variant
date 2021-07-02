@@ -1,0 +1,4 @@
+pandas==1.2.4
+biopython==1.79
+ngslite==1.2.1
+cutadapt==3.3

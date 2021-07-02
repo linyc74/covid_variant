@@ -2,7 +2,6 @@ name: covid_variant
 channels:
   - bioconda
 dependencies:
-  - python=3.8
   - bowtie2=2.4.1
   - samtools=1.9
   - bcftools=1.9
