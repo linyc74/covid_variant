@@ -4,7 +4,7 @@ RUN apt-get install -y \
     libtbb2 \
  && conda install --channel bioconda \
     bowtie2=2.4.1 \
-    samtools=1.9 \
+    samtools=1.11 \
     bcftools=1.9 \
  && conda clean --all --yes \
  && pip install --no-cache-dir \
@@ -13,6 +13,7 @@ RUN apt-get install -y \
     ngslite==1.2.1 \
     cutadapt==3.3
 
-COPY ./covid_variant /covid_variant
+COPY ./covid_variant/* /covid_variant/covid_variant/
+COPY ./__main__.py /covid_variant/
 WORKDIR /
 ENTRYPOINT ["python", "covid_variant"]
