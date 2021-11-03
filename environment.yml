@@ -4,4 +4,4 @@ channels:
 dependencies:
   - bowtie2=2.4.1
   - samtools=1.11
-  - bcftools=1.9
+  - bcftools=1.11

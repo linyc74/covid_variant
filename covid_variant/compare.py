@@ -1,6 +1,6 @@
 import pandas as pd
 from collections import namedtuple
-from typing import List, Dict, Tuple, Callable
+from typing import List, Dict, Tuple
 from Bio.pairwise2 import align, format_alignment
 from .cds import CDS
 from .template import Processor, Settings
